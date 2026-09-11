@@ -1,0 +1,8 @@
+numpy>=1.24
+scipy>=1.10
+scikit-learn>=1.3
+torch>=2.0
+pyedflib>=0.1.22
+networkx>=3.0
+pylsl>=1.16        # only required for monitoring='live'
+psutil>=5.9
