@@ -1,8 +1,39 @@
+# Source protection — never distribute the Cython source
+neural_rmf/_core/*.pyx
+neural_rmf/_core/*.c
+neural_rmf/_core/*.html
+
+# Compiled binaries (platform-specific, built by user)
+*.pyd
+*.so
+*.dylib
+
+# Python
 __pycache__/
-*.pyc
-*.pyo
-.ipynb_checkpoints/
+*.py[cod]
 *.egg-info/
 dist/
 build/
-.env
+.eggs/
+
+# Environments
+.venv/
+venv/
+env/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test / CI
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Data — never commit EDF patient files
+*.edf
+*.EDF
+data/

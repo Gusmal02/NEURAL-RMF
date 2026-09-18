@@ -1,0 +1,44 @@
+[build-system]
+requires = ["setuptools>=68", "wheel", "cython>=3.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "neural-rmf"
+version = "0.1.0"
+description = "Resonant Memory Field for real-time EEG pre-ictal detection"
+requires-python = ">=3.9"
+readme = "README.md"
+license = { text = "Proprietary" }
+authors = [
+    { name = "Gustavo", email = "foser0206@gmail.com" }
+]
+keywords = ["epilepsy", "EEG", "pre-ictal", "resonant-field", "neurology"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+    "Intended Audience :: Healthcare Industry",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Medical Science Apps.",
+]
+dependencies = [
+    "numpy>=1.24",
+    "scipy>=1.10",
+    "scikit-learn>=1.3",
+    "torch>=2.0",
+    "pyedflib>=0.1.22",
+    "networkx>=3.0",
+    "psutil>=5.9",
+]
+
+[project.optional-dependencies]
+live = ["pylsl>=1.16"]
+dev  = ["cython>=3.0", "pytest>=7.0"]
+
+[tool.setuptools.packages.find]
+exclude = ["tests*", "notebooks*", "docs*"]
+
+[tool.setuptools.package-data]
+"neural_rmf._core" = ["*.pyd", "*.so"]
+
+[tool.setuptools.exclude-package-data]
+"neural_rmf._core" = ["*.pyx", "*.py"]
