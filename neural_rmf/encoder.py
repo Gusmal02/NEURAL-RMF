@@ -31,7 +31,8 @@ _BANDS = {
 def _bandpower(signal: np.ndarray, fs: float, fmin: float, fmax: float) -> float:
     freqs, psd = welch(signal, fs=fs, nperseg=min(256, len(signal)))
     idx = np.logical_and(freqs >= fmin, freqs <= fmax)
-    return float(np.trapz(psd[idx], freqs[idx]) + 1e-12)
+    _trapz = getattr(np, "trapezoid", None) or getattr(np, "trapz")
+    return float(_trapz(psd[idx], freqs[idx]) + 1e-12)
 
 
 def _extract_features(window: np.ndarray, fs: float) -> np.ndarray:
