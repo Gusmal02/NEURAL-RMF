@@ -172,6 +172,58 @@ def detect(
 
 
 # ---------------------------------------------------------------------------
+def run_edf(
+    edf_path: str,
+    channels: Optional[List[str]] = None,
+    calib_minutes: float = 8.0,
+) -> List[dict]:
+    """
+    Convenience wrapper: calibrate + detect in one call.
+
+    Returns a list of dicts, one per 30-second window after calibration:
+        {"t_min": float, "t_max": float, "novelty_max": float,
+         "novelty_col": float, "estado": str, "umbral": float}
+    """
+    model = calibrate(edf_path, calib_minutes=calib_minutes, channels=channels)
+
+    signal, fs, names = read_edf(edf_path, model.channels)
+
+    win_samples    = int(_WIN_SEC * model.fs)
+    stride_samples = int(_STRIDE_SEC * model.fs)
+    n_calib        = int(calib_minutes * 60 * model.fs)
+
+    all_windows = _sliding_windows(signal, win_samples, stride_samples)
+    n_calib_wins = len(_sliding_windows(signal[:, :n_calib], win_samples, stride_samples))
+    windows = all_windows[n_calib_wins:]
+
+    semaforo = Semaforo(model.umbral, n_confirmacion=3)
+    t_offset = n_calib_wins * _STRIDE_SEC
+
+    results: List[dict] = []
+    for idx, win in enumerate(windows):
+        omega = model.encoder.transform(win)
+        info  = sense(model.field, omega)
+        forget_step(model.field, _FORGET_GAMMA)
+
+        nov_max = float(1.0 - info["max_res"])
+        nov_col = float(1.0 - info.get("mean_res", info["max_res"]))
+
+        estado = semaforo.actualizar(nov_max, r_field=float(info.get("r_field", 1.0)))
+
+        t_min = t_offset + idx * _STRIDE_SEC
+        results.append({
+            "t_min":       t_min,
+            "t_max":       t_min + _WIN_SEC,
+            "novelty_max": nov_max,
+            "novelty_col": nov_col,
+            "estado":      estado,
+            "umbral":      model.umbral,
+        })
+
+    return results
+
+
+# ---------------------------------------------------------------------------
 def plot_semaforo(resultado: ResultadoDeteccion, save: Optional[str] = None, show: bool = True):
     """Delega en viz.plot_semaforo()."""
     from .viz import plot_semaforo as _plot

@@ -3,6 +3,7 @@
 from .api import (
     calibrate,
     detect,
+    run_edf,
     plot_semaforo,
     CalibratedModel,
     ResultadoDeteccion,
