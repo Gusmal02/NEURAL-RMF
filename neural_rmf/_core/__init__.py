@@ -9,17 +9,16 @@ def _load_field_engine():
     else:
         candidates = list(_dir.glob("field_engine*.so"))
 
-    if not candidates:
-        raise ImportError(
-            f"No se encontró el binario field_engine en {_dir}. "
-            "Descarga la rueda correcta para tu plataforma desde el repositorio."
-        )
+    if candidates:
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("field_engine", candidates[0])
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        return mod
 
-    import importlib.util
-    spec = importlib.util.spec_from_file_location("field_engine", candidates[0])
-    mod = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(mod)
-    return mod
+    # Fallback: pure Python implementation (no compiled binary available)
+    from . import field_engine as _py_fe
+    return _py_fe
 
 _fe = _load_field_engine()
 
