@@ -24,12 +24,31 @@ class _Field:
         self._weights: list[float] = []
         self._r = 0.0
         self._r_history: collections.deque = collections.deque(maxlen=20)
+        # Rolling buffer of recent input ω unit vectors (maxlen=8 → 4 min at 30s stride).
+        # r_field is computed as ‖mean(unit(ω_1),...,unit(ω_k))‖ — the coherence of
+        # recent inputs, NOT the Kuramoto order of the internal field state.
+        # Pre-ictal EEG is physiologically more stereotyped, so this rises naturally.
+        self._input_buffer: collections.deque = collections.deque(maxlen=8)
 
 
 def _update_r(field: _Field) -> None:
+    """r from internal field state — used only during calibrate_field for init."""
     norms = np.linalg.norm(field._omega, axis=1, keepdims=True)
     norms = np.where(norms < 1e-8, 1.0, norms)
     unit = field._omega / norms
+    r = float(np.linalg.norm(np.mean(unit, axis=0)))
+    field._r = r
+    field._r_history.append(r)
+
+
+def _update_r_from_inputs(field: _Field) -> None:
+    """r from the rolling buffer of recent INPUT ω vectors (E3 mechanism)."""
+    if len(field._input_buffer) < 2:
+        return
+    vecs = np.stack(list(field._input_buffer))  # (k, 3)
+    norms = np.linalg.norm(vecs, axis=1, keepdims=True)
+    norms = np.where(norms < 1e-8, 1.0, norms)
+    unit = vecs / norms
     r = float(np.linalg.norm(np.mean(unit, axis=0)))
     field._r = r
     field._r_history.append(r)
@@ -97,15 +116,11 @@ def sense(field: _Field, omega: np.ndarray, update_dynamics: bool = True) -> dic
         mean_res = node_mean
 
     if update_dynamics:
-        # Kuramoto-like attraction: nodos con alta resonancia se acercan al patrón actual.
-        # Solo activo durante detección (no durante cálculo de umbrales de calibración).
-        _K_COUPLING = 0.08
-        attraction = node_cos[:, np.newaxis] * omega_n[np.newaxis, :]  # (N, 3)
-        field._omega = field._omega + _K_COUPLING * attraction
-        norms = np.linalg.norm(field._omega, axis=1, keepdims=True)
-        norms = np.where(norms < 1e-8, 1.0, norms)
-        field._omega = field._omega / norms
-        _update_r(field)
+        # r_field = coherencia de los últimos 8 vectores ω de entrada.
+        # Pre-ictal: EEG se vuelve estereotipado → ventanas consecutivas apuntan en la
+        # misma dirección → r_field SUBE (E3 "Calma Organizada").
+        field._input_buffer.append(omega_n.copy())
+        _update_r_from_inputs(field)
 
     return {"max_res": max_res, "mean_res": mean_res, "r_field": field._r}
 
