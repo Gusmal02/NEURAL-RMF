@@ -90,7 +90,7 @@ def calibrate(
     rmf = build_field(N=_FIELD_N, K=_FIELD_K, omega_std=_OMEGA_STD, seed=_FIELD_SEED)
     calibrate_field(rmf, omegas_calib, n_expose=_N_EXPOSE)
 
-    novs_calib = [float(1.0 - sense(rmf, o)["max_res"]) for o in omegas_calib]
+    novs_calib = [float(1.0 - sense(rmf, o, update_dynamics=False)["max_res"]) for o in omegas_calib]
     umbral = calibrar_umbral(novs_calib, percentil=80)
 
     return CalibratedModel(
