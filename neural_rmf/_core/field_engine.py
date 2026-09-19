@@ -96,6 +96,16 @@ def sense(field: _Field, omega: np.ndarray) -> dict:
         max_res  = node_max
         mean_res = node_mean
 
+    # Kuramoto-like attraction: nodos con alta resonancia se acercan al patrón actual,
+    # los de baja resonancia se alejan levemente. Esto hace que r_field evolucione
+    # dinámicamente con cada ventana, reflejando la coherencia del campo.
+    _K_COUPLING = 0.08
+    attraction = node_cos[:, np.newaxis] * omega_n[np.newaxis, :]  # (N, 3)
+    field._omega = field._omega + _K_COUPLING * attraction
+    norms = np.linalg.norm(field._omega, axis=1, keepdims=True)
+    norms = np.where(norms < 1e-8, 1.0, norms)
+    field._omega = field._omega / norms
+
     _update_r(field)
     return {"max_res": max_res, "mean_res": mean_res, "r_field": field._r}
 
