@@ -8,6 +8,7 @@ using a simplified statistical approximation.
 """
 
 from __future__ import annotations
+import collections
 import numpy as np
 
 
@@ -21,7 +22,17 @@ class _Field:
         self._omega = raw / norms
         self._memory: list[np.ndarray] = []
         self._weights: list[float] = []
-        self._r = float(rng.uniform(0.85, 0.95))
+        self._r = 0.0
+        self._r_history: collections.deque = collections.deque(maxlen=20)
+
+
+def _update_r(field: _Field) -> None:
+    norms = np.linalg.norm(field._omega, axis=1, keepdims=True)
+    norms = np.where(norms < 1e-8, 1.0, norms)
+    unit = field._omega / norms
+    r = float(np.linalg.norm(np.mean(unit, axis=0)))
+    field._r = r
+    field._r_history.append(r)
 
 
 def build_field(
@@ -59,6 +70,7 @@ def calibrate_field(
         norms = np.linalg.norm(field._omega, axis=1, keepdims=True)
         norms = np.where(norms < 1e-8, 1.0, norms)
         field._omega /= norms
+    _update_r(field)
 
 
 def sense(field: _Field, omega: np.ndarray) -> dict:
@@ -84,6 +96,7 @@ def sense(field: _Field, omega: np.ndarray) -> dict:
         max_res  = node_max
         mean_res = node_mean
 
+    _update_r(field)
     return {"max_res": max_res, "mean_res": mean_res, "r_field": field._r}
 
 

@@ -40,6 +40,7 @@ class ResultadoDeteccion:
     canales_usados:      List[str]
     nov_collective:      List[float]
     slope_r:             List[float]
+    r_field_series:      List[float] = field(default_factory=list)
 
 
 @dataclass
@@ -168,6 +169,7 @@ def detect(
         canales_usados=names,
         nov_collective=nov_collective,
         slope_r=slope_r,
+        r_field_series=r_history,
     )
 
 
