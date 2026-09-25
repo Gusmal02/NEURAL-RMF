@@ -71,6 +71,15 @@ released wheel.
 Read the [installation guide](docs/INSTALLATION.md) and
 [research-use license](LICENSE) before using the package.
 
+## Reproducible Colab example
+
+The English [two-case Colab notebook](notebooks/NEURAL_RMF_Colab_Demo_EN.ipynb)
+installs the released Linux wheel, downloads only two public CHB-MIT EDF
+recordings, calibrates each session independently for eight minutes, generates
+the trajectory-aware traffic-light timeline, compares results retrospectively
+with public annotations, and exports CSV, JSON, PNG, and ZIP artifacts. It
+does not download the full dataset or use annotations as model input.
+
 ## Intended use
 
 - Research evaluation of four-channel EEG monitoring workflows.
