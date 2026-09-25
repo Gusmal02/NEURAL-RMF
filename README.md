@@ -45,4 +45,19 @@ Read the [installation guide](docs/INSTALLATION.md) and
 Developed by Gustavo Alfonso Maldonado Vallejo, AI Engineer and Data Science.
 Research collaboration and independent clinical validation are welcome.
 
+## Citable technical preprint
+
+The current technical report, including its figures and retrospective analysis,
+is publicly archived on Zenodo:
+
+> Maldonado, Gustavo Alfonso. *NEURAL RMF: Individualized EEG Monitoring for
+> Early Warnings of Epileptic Seizure Risk*. Zenodo.
+> https://doi.org/10.5281/zenodo.22950874
+
+The record is a citable technical preprint and is not peer-reviewed clinical
+evidence. The corresponding manuscript PDF is available in this repository at
+[preprint/NEURAL_RMF_preprint_EN.pdf](preprint/NEURAL_RMF_preprint_EN.pdf).
+Future revisions should be released as new versions of the Zenodo record to
+maintain an auditable version history.
+
 Copyright © 2026 Gustavo Alfonso Maldonado Vallejo. All rights reserved.
