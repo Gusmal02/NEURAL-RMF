@@ -1,0 +1,24 @@
+{
+  "schema_version": "0.1",
+  "title": "NEURAL-RMF Monitoring MVP",
+  "examples": [
+    {
+      "file": "chb01_03.json",
+      "session_id": "chbmit_chb01_chb01_03",
+      "display_name": "CHB01 · recording 03",
+      "dataset": "CHB-MIT",
+      "trajectory_type": "Example with sustained change before the retrospective annotation",
+      "duration_min": 59.5,
+      "has_annotation": true
+    },
+    {
+      "file": "siena_pn05_4.json",
+      "session_id": "siena_PN05_PN05-4",
+      "display_name": "PN05 · recording 4",
+      "dataset": "Siena Scalp EEG",
+      "trajectory_type": "Example with a short, abrupt trajectory",
+      "duration_min": 81.5,
+      "has_annotation": true
+    }
+  ]
+}

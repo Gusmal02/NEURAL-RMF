@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="NEURAL-RMF research monitoring MVP">
+    <title>NEURAL-RMF · Monitoring MVP</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="shell">
+      <header>
+        <p class="eyebrow" data-i18n="eyebrow">Demostración de investigación · 4 nodos temporales</p>
+        <h1>NEURAL-RMF Monitoring MVP</h1>
+        <p class="subtitle" data-i18n="subtitle">Una vista reproducible de la calibración individual de ocho minutos, los estados de monitoreo y las anotaciones retrospectivas del conjunto de datos.</p>
+      </header>
+
+      <section class="notice" aria-label="Research use limitation">
+        <strong data-i18n="noticeStrong">Demostración de investigación.</strong> <span data-i18n="notice">Esta página no diagnostica, no predice la hora exacta de una crisis y no brinda consejo médico. Las anotaciones se muestran solo después de calcular los estados de monitoreo.</span>
+      </section>
+
+      <section class="controls" aria-label="Session controls">
+        <label for="session-select" data-i18n="sessionLabel">Ejemplo público</label>
+        <select id="session-select"></select>
+        <label class="toggle"><input id="annotation-toggle" type="checkbox" checked> <span data-i18n="annotationToggle">Mostrar anotación retrospectiva del conjunto de datos</span></label>
+        <label class="language"><span data-i18n="languageLabel">Idioma</span><select id="language-select" aria-label="Language"><option value="es">Español</option><option value="en">English</option></select></label>
+      </section>
+
+      <section class="status-grid" aria-live="polite">
+        <article><span data-i18n="configuration">Configuración</span><strong id="node-count">4 nodos temporales</strong><small id="channel-list"></small></article>
+        <article><span data-i18n="calibration">Calibración de sesión</span><strong>8 minutos</strong><small data-i18n="calibrationNote">Referencia individual; se repite para una sesión nueva.</small></article>
+        <article><span data-i18n="currentDisplay">Estado al final del registro</span><strong id="current-state">Listo</strong><small id="state-explanation">Selecciona un ejemplo para iniciar.</small></article>
+      </section>
+
+      <section class="card timeline-card">
+        <div class="section-heading">
+          <div><p class="eyebrow" data-i18n="sessionTrajectory">Trayectoria de sesión</p><h2 id="session-title">Cargando…</h2></div>
+          <div class="legend" aria-label="State legend">
+            <span class="state verde" data-i18n="verde">Verde</span><span class="state amarillo" data-i18n="amarillo">Amarillo</span><span class="state naranja" data-i18n="naranja">Naranja</span><span class="state rojo" data-i18n="rojo">Rojo</span>
+          </div>
+        </div>
+        <canvas id="timeline" height="310" aria-label="Monitoring timeline"></canvas>
+        <div class="axis-note"><span>0 min</span><span id="duration-label"></span></div>
+      </section>
+
+      <section class="card reason-card">
+        <p class="eyebrow" data-i18n="fourNodesEyebrow">Diseño inicial</p>
+        <h2 data-i18n="fourNodesTitle">¿Por qué cuatro nodos temporales?</h2>
+        <p data-i18n="fourNodesBody">Esta primera versión prioriza una diadema ligera y repetible. Las cuatro posiciones temporales se seleccionaron porque conservaron cobertura retrospectiva útil en las pruebas de investigación y reducen los contactos, el ruido práctico y la complejidad frente a un montaje clínico extenso. No sustituyen un EEG clínico multicanal ni se presentan como una superioridad universal: una configuración de seis nodos puede evaluarse después para un paciente o protocolo específico.</p>
+      </section>
+
+      <section class="card instructions-card">
+        <p class="eyebrow" data-i18n="instructionsEyebrow">Guía rápida</p>
+        <h2 data-i18n="instructionsTitle">Cómo usar esta demostración</h2>
+        <ol>
+          <li data-i18n="instruction1">Elige uno de los dos ejemplos públicos. Cada uno representa una sesión independiente.</li>
+          <li data-i18n="instruction2">Identifica los primeros ocho minutos: son la calibración individual y no deben interpretarse como un estado de riesgo.</li>
+          <li data-i18n="instruction3">Revisa la transición de colores. Verde es compatibilidad con la referencia; amarillo y naranja muestran cambio temprano o sostenido; rojo registra una trayectoria consolidada para investigación.</li>
+          <li data-i18n="instruction4">Activa o desactiva la anotación retrospectiva para comparar visualmente el resultado del pipeline con el inicio anotado del conjunto de datos. La anotación no intervino en el cálculo.</li>
+          <li data-i18n="instruction5">Descarga JSON o CSV para inspeccionar las ventanas derivadas y reproducir la visualización.</li>
+        </ol>
+      </section>
+
+      <section class="card metrics-card">
+        <div class="section-heading"><div><p class="eyebrow" data-i18n="metricsEyebrow">Detalle de investigación</p><h2 data-i18n="metricsTitle">Trayectoria de métricas RMF</h2></div><span class="muted" data-i18n="metricsNote">No es una escala clínica ni una probabilidad.</span></div>
+        <canvas id="metrics" height="260" aria-label="Research metrics trajectory"></canvas>
+        <div class="metric-legend"><span class="line-key novelty" data-i18n="noveltyLabel">Novedad máxima</span><span class="line-key rfield">r_field</span><span class="line-key threshold" data-i18n="thresholdLabel">Umbral P80</span></div>
+      </section>
+
+      <section class="two-col">
+        <article class="card">
+          <p class="eyebrow" data-i18n="recordEyebrow">Registro de trayectoria</p>
+          <h2 data-i18n="recordTitle">Episodio de monitoreo observado</h2>
+          <dl id="episode-summary"></dl>
+        </article>
+        <article class="card">
+          <p class="eyebrow" data-i18n="detailEyebrow">Detalle de investigación</p>
+          <h2 data-i18n="detailTitle">Cómo leer esta vista</h2>
+          <p id="trajectory-text"></p>
+          <p class="muted" data-i18n="detailNote">El estado rojo se basa en una trayectoria temporal, no en un valor alto aislado. El candidato abrupto secundario se conserva en el registro exportado, pero no se presenta como alerta al usuario.</p>
+        </article>
+      </section>
+
+      <section class="card export-card">
+        <div><p class="eyebrow" data-i18n="reproducibility">Reproducibilidad</p><h2 data-i18n="downloadTitle">Descargar este ejemplo público</h2><p data-i18n="downloadBody">Las exportaciones contienen ventanas derivadas sin etiqueta y la anotación retrospectiva en un campo separado.</p></div>
+        <div class="buttons"><button id="download-json" data-i18n="downloadJson">Descargar JSON</button><button id="download-csv" class="secondary" data-i18n="downloadCsv">Descargar CSV</button></div>
+      </section>
+
+      <footer data-i18n="footer">NEURAL-RMF · Prototipo de investigación · Configuración inicial de cuatro nodos temporales, seleccionada por portabilidad y comodidad.</footer>
+    </main>
+    <script src="app.js"></script>
+  </body>
+</html>

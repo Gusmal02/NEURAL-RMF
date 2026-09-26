@@ -80,6 +80,15 @@ the trajectory-aware traffic-light timeline, compares results retrospectively
 with public annotations, and exports CSV, JSON, PNG, and ZIP artifacts. It
 does not download the full dataset or use annotations as model input.
 
+## Interactive monitoring MVP
+
+The bilingual [interactive monitoring MVP](https://gusmal02.github.io/NEURAL-RMF/mvp/)
+reproduces two public EEG sessions as a static research demonstration. It
+shows the eight-minute individual calibration, monitoring states, a research
+metric graph, and a separate retrospective annotation overlay. Each example
+can be exported as JSON or CSV. It is not a diagnostic system or a live
+medical monitoring service.
+
 ## Intended use
 
 - Research evaluation of four-channel EEG monitoring workflows.
