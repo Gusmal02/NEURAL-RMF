@@ -1,167 +1,137 @@
-# NEURAL-RMF — Research Edition
+# NEURAL-RMF
 
-NEURAL-RMF is research software for patient-specific EEG state monitoring.
-After an initial session calibration, it characterizes subsequent EEG windows
-relative to that person's own baseline and reports interpretable monitoring
-states. The research objective is to study evolving EEG activity and provide
-an anticipatory monitoring window when a clinically meaningful state pattern
-is observed.
+## Individualized EEG monitoring without training on seizure labels
 
-NEURAL-RMF does **not** provide deterministic seizure prediction, diagnosis,
-or medical advice. Its outputs are research observations that require clinical
-validation, appropriate EEG review, and clinician oversight.
+**NEURAL-RMF is a research framework for individualized EEG monitoring.** It
+creates a short reference from the current EEG session, then continuously
+describes how later activity changes in relation to that reference.
 
-## Project overview
+It is not a conventional seizure classifier trained on a large population. It
+does not need prior seizure labels to begin a session, and it does not estimate
+the exact time at which a seizure will happen. Its research purpose is to
+identify and record a trajectory of change that may provide an anticipatory
+monitoring window for clinical investigation.
 
-RMF means **Resonant Memory Field**: a dynamic representation framework in
-which familiar patterns are incorporated as a collective state. A new input is
-evaluated by its compatibility with that learned reference. In the EEG setting,
-the reference is not a universal model of a healthy brain; it is the recent
-baseline of the individual monitoring session.
+> **Research use only.** NEURAL-RMF is not a diagnostic device, an emergency
+> warning service, or a substitute for clinical EEG review, medical judgement,
+> or regulatory validation.
 
-NEURAL-RMF performs an eight-minute session calibration, then evaluates
-sequential 30-second EEG windows. It tracks local and collective change,
-temporal coherence, persistence, and the direction of change over time. The
-output is an interpretable traffic light:
+## The idea, in plain language
 
-| State | Research interpretation |
+Think of the first usable minutes of a recording as learning the usual surface
+of a pond. NEURAL-RMF does not ask, “does this look like a seizure from another
+person?” It asks, “how different is this moment from the reference established
+for this session?”
+
+The framework observes that relationship over time. A sustained departure can
+move through four research monitoring states:
+
+| State | Plain-language meaning |
 | --- | --- |
-| Green | Activity compatible with the individual session reference. |
-| Yellow | Early deviation that warrants observation. |
-| Orange | Sustained activity or loading under observation. |
-| Red | A high-risk trajectory with sustained loading, sufficient peak change, subsequent decline or reorganization, rising collective coherence, and persistence. |
+| **Green** | Activity is broadly compatible with this session’s reference. |
+| **Yellow** | An early change from the reference is being observed. |
+| **Orange** | The change has become sustained and is being monitored. |
+| **Red** | A specific, persistent trajectory of change has consolidated and should be recorded for research review. |
 
-The red state is not triggered by a single high-novelty oscillation. It
-requires a temporal sequence, which is why the project describes a monitored
-risk transition rather than a binary classifier output or an exact seizure
-clock.
+Red is not produced by one unusually high value. It requires a temporal
+sequence: sustained change, a sufficient individual peak, subsequent decline
+or reorganization, increasing collective coherence, and persistence across
+successive windows. This is why it is described as monitoring a trajectory,
+not making a deterministic prediction.
 
-## What makes the approach different
+## What NEURAL-RMF is — and is not
 
-- **Individualized from the first session.** The initial reference is learned
-  from the current recording; clinical seizure labels are not used during
-  calibration or inference.
-- **Trajectory-aware.** The system preserves the path from baseline through
-  alert, event when available, and recovery rather than reducing activity to
-  one threshold crossing.
-- **Interpretable output.** CSV, JSON, timeline, and graph exports allow a
-  clinician or researcher to inspect why an alert state emerged.
-- **Compact monitoring hypothesis.** The proposed wearable configuration uses
-  a bilateral temporal four-node arrangement centered on `F7`, `T7`, `F8`, and
-  `T8`, rather than attempting to replicate a full diagnostic montage.
-
-The four-node configuration was selected after internal technical comparisons
-because it concentrated the signal used by this field calculation more
-effectively than the evaluated six- and 23-channel configurations. This is not
-a claim that four nodes replace clinical EEG: full multichannel EEG, video,
-clinical context, and neurologist interpretation remain necessary for
-diagnosis and localization.
-
-## Research distribution
-
-The resonant-memory engine, encoding layer and internal state logic are
-distributed as compiled binary modules. This repository deliberately contains
-the public documentation and installation instructions, not the internal
-engine source.
-
-Binary releases support Windows and Linux on released Python versions. Linux
-wheels can be installed in Google Colab when the notebook runtime matches a
-released wheel.
-
-Read the [installation guide](docs/INSTALLATION.md) and
-[research-use license](LICENSE) before using the package.
-
-## Reproducible Colab example
-
-The English [two-case Colab notebook](notebooks/NEURAL_RMF_Colab_Demo_EN.ipynb)
-installs the released Linux wheel, downloads only two public CHB-MIT EDF
-recordings, calibrates each session independently for eight minutes, generates
-the trajectory-aware traffic-light timeline, compares results retrospectively
-with public annotations, and exports CSV, JSON, PNG, and ZIP artifacts. It
-does not download the full dataset or use annotations as model input.
-
-## Interactive monitoring MVP
-
-The bilingual [interactive monitoring MVP](https://gusmal02.github.io/NEURAL-RMF/mvp/)
-reproduces two public EEG sessions as a static research demonstration. It
-shows the eight-minute individual calibration, monitoring states, a research
-metric graph, and a separate retrospective annotation overlay. Each example
-can be exported as JSON or CSV. It is not a diagnostic system or a live
-medical monitoring service.
-
-## Intended use
-
-- Research evaluation of four-channel EEG monitoring workflows.
-- Per-session baseline calibration.
-- Longitudinal recording of baseline-relative state changes.
-- Reproducible technical analysis alongside clinical labels and review.
-
-## Retrospective technical evidence
-
-The current preprint documents analysis of public, de-identified CHB-MIT and
-Siena scalp EEG recordings. The evaluated cohort contained **80 session
-trajectories from 27 unique patients**: 41 recordings from 14 CHB-MIT patients
-and 39 recordings from 13 Siena patients. Each independent recording received
-its own eight-minute calibration; labels were withheld while states were
-generated.
-
-| Retrospective result | Documented observation |
+| Question | Answer |
 | --- | --- |
-| Annotated onsets available after calibration | 69 |
-| Annotated onsets with a preceding generated red trajectory | 66 of 69 |
-| Remaining cases | Insufficient baseline availability or data-quality limitations; not conclusive evidence of absent signal |
-| Unlabeled structured candidates retained for review | 99 |
+| Is it an algorithm? | Yes. It is a dynamic signal-representation and monitoring algorithm. |
+| Is it AI? | It is an AI-inspired, label-free representation framework; it is **not** a conventional supervised machine-learning classifier. |
+| Does it need a training dataset? | No. It needs a brief, usable calibration from the session being monitored. |
+| Does it use clinical labels to generate its states? | No. Labels are used only afterward to compare retrospective results. |
+| Does it diagnose epilepsy or confirm a seizure? | No. Those conclusions require clinical EEG interpretation and appropriate validation. |
+| Does it predict the exact time of a seizure? | No. It reports baseline-relative activity trajectories and potential anticipatory monitoring states. |
 
-In an internal comparison of 19 CHB-MIT runs, the four-node montage preceded
-18 recorded onsets, compared with 16 using six channels and 14 using a
-23-channel montage. Its internal CHB-MIT mean lead time was 67.2 minutes. The
-corresponding internal Siena analysis reported 97% detection and a mean lead
-time of 89.5 minutes. These lead times are not uniform: some trajectories are
-gradual and emerge much earlier, while others are abrupt and provide a shorter
-window.
+## How a session works
 
-These values are **retrospective technical observations**, not prospective
-clinical-performance claims. They do not establish positive predictive value,
-driving safety, clinical efficacy, or the performance of a medical device.
+1. **Calibrate:** the first eight minutes establish a session-specific
+   reference. This is repeated when a recording session changes or the device
+   is removed.
+2. **Monitor:** subsequent 30-second windows are compared with that reference.
+3. **Describe the trajectory:** the system records the state, timing, and
+   research metrics that led to it.
+4. **Review retrospectively:** where public annotations exist, they can be
+   overlaid after inference. They never generate the state.
 
-Some red trajectories do not coincide with an onset annotated in the source
-dataset. They are neither automatically false alarms nor confirmed seizures.
-Possible explanations include transient physiology, artifacts, aborted
-transitions, or subtle/subclinical epileptic activity. Distinguishing those
-possibilities requires synchronized video-EEG, signal-quality assessment,
-symptom logs, and expert review.
+## Why begin with four temporal nodes?
 
-## Important limits
+The first wearable hypothesis uses a compact bilateral temporal arrangement:
+`F7`, `T7`, `F8`, and `T8` (or their equivalent derivations, depending on the
+recording montage). Four nodes make a future headband simpler, lighter, and
+more repeatable than a full clinical montage while retaining useful
+retrospective monitoring coverage.
 
-- A monitoring alert is not a diagnosis and must not be used as the sole basis
-  for clinical or safety decisions.
-- The software is not an emergency-warning device.
-- Research outputs must be interpreted with clinical context, signal quality
-  assessment, and, when available, synchronized clinical/video review.
+This is a **portability decision**, not a claim that four nodes replace 23
+clinical EEG channels. Full multichannel EEG, video, clinical context, and
+neurologist interpretation remain necessary for diagnosis and localization.
+A six-node configuration remains a supported future option when it adds value
+for a particular patient or recording protocol.
 
-## Author and collaboration
+## What has been evaluated so far
 
-Developed by Gustavo Alfonso Maldonado Vallejo, AI Engineer and Data Science.
-Research collaboration and independent clinical validation are welcome.
+The technical work used public, de-identified CHB-MIT and Siena scalp EEG
+recordings. Each recording was treated as an independent session and received
+its own eight-minute calibration. Labels were withheld while monitoring states
+were generated.
 
-## Citable technical preprint
+The current retrospective report documents 80 session trajectories from 27
+participants, including 69 annotated onsets outside calibration. It reports a
+preceding generated red trajectory for 66 of those annotated onsets under its
+specified protocol. The remaining cases require cautious interpretation:
+short usable baseline, timing near calibration, or data-quality limitations do
+not establish an absent physiological signal.
 
-The current technical report, including its figures and retrospective analysis,
-is publicly archived on Zenodo:
+Some structured red trajectories do not coincide with an annotation in the
+source dataset. They are **research candidates**, not automatically false
+alarms and not confirmed subclinical seizures. Possible explanations include
+transient physiology, artifacts, an interrupted transition, or subtle
+epileptic activity. Resolving this requires synchronized video-EEG,
+signal-quality assessment, symptom/context logs, and expert review.
 
-> Maldonado, Gustavo Alfonso. *NEURAL RMF: Individualized EEG Monitoring for
-> Early Warnings of Epileptic Seizure Risk*. Zenodo.
-> https://doi.org/10.5281/zenodo.22950874
+For methods, protocol details, comparative benchmarks, channel-montage
+results, definitions, and limitations, read the
+[technical note](docs/TECHNICAL.md).
 
-The record is a citable technical preprint and is not peer-reviewed clinical
-evidence. The corresponding manuscript PDF is available in this repository at
-[preprint/NEURAL_RMF_preprint_EN.pdf](preprint/NEURAL_RMF_preprint_EN.pdf).
-Future revisions should be released as new versions of the Zenodo record to
-maintain an auditable version history.
+## Try it
 
-Public data sources used for the retrospective analysis:
+- **Interactive MVP:** [open the bilingual monitoring demonstration](https://gusmal02.github.io/NEURAL-RMF/mvp/).
+  It reproduces two public sessions, displays the calibration and monitoring
+  trajectory, and exports JSON/CSV.
+- **Colab example:** [run the two-case notebook](notebooks/NEURAL_RMF_Colab_Demo_EN.ipynb).
+  It installs the released wheel, downloads only two public EDF recordings,
+  performs the eight-minute per-session calibration, and generates figures and
+  exports.
+- **Technical preprint:** [Zenodo DOI](https://doi.org/10.5281/zenodo.22950874)
+  · [PDF in this repository](preprint/NEURAL_RMF_preprint_EN.pdf).
 
-- [CHB-MIT Scalp EEG Database](https://physionet.org/content/chbmit/1.0.0/)
-- [Siena Scalp EEG Database](https://physionet.org/content/siena-scalp-eeg/1.0.0/)
+## Public research distribution
+
+The resonant-memory engine, encoding layer, and internal state logic are
+distributed as compiled binary modules. This repository provides the public
+research interface, reproducible examples, installation material, and
+technical documentation without disclosing the protected internal engine
+implementation.
+
+See the [installation guide](docs/INSTALLATION.md),
+[technical note](docs/TECHNICAL.md), and [license](LICENSE) before use.
+
+## Collaboration
+
+Clinical, signal-processing, wearable-EEG, and independent replication
+collaborations are welcome. The next needed step is prospective and clinically
+reviewed evaluation; the present results do not establish clinical efficacy or
+safety for daily-life decisions.
+
+**Gustavo Alfonso Maldonado Vallejo** · AI Engineer and Data Science
+
+gustavo.a.maldonado.v@gmail.com
 
 Copyright © 2026 Gustavo Alfonso Maldonado Vallejo. All rights reserved.
